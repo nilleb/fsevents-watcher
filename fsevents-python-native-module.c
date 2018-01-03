@@ -19,19 +19,17 @@
 
 PyObject * loop(PyObject *, PyObject *);
 PyObject * stop(PyObject *, PyObject *);
-PyObject * unschedule(PyObject *, PyObject *);
 PyObject * schedule(PyObject *, PyObject *);
 
 // Workaround missing variadic function support
 // https://github.com/golang/go/issues/975
-int PyArg_ParseTuple_LL(PyObject * args, long long * a, long long * b) {
-    return PyArg_ParseTuple(args, "LL", a, b);
+int PyArg_ParseTuple_str(PyObject * args,  char * path) {
+    return PyArg_ParseTuple(args, "0:loop", path);
 }
 
 static PyMethodDef methods[] = {
     {"loop", loop, METH_VARARGS, "Start looping."},
     {"stop", stop, METH_O, "Stop the watcher."},
-    {"unschedule", unschedule, METH_O, "Reset the watcher for the given path."},
     {"schedule", schedule, METH_VARARGS, "Setup the watcher for the given path."},
     {NULL, NULL, 0, NULL}
 };

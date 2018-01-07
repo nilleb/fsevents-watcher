@@ -40,10 +40,8 @@ static PyMethodDef methods[] = {
 
 static char doc[] = "Low-level FSEvent interface.";
 
-PyMODINIT_FUNC
-PyInit_foo(void)
-{
+MOD_INIT(fsevents_watcher) {
     PyObject* mod;
-    MOD_DEF(mod, "_fsevents", doc, methods);
+    MOD_DEF(mod, "fsevents_watcher", doc, methods);
     return MOD_SUCCESS_VAL(mod);
 }

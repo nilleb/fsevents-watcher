@@ -17,20 +17,24 @@
           ob = Py_InitModule3(name, methods, doc);
 #endif
 
-PyObject * loop(PyObject *, PyObject *);
+PyObject * start(PyObject *, PyObject *);
 PyObject * stop(PyObject *, PyObject *);
 PyObject * schedule(PyObject *, PyObject *);
 
 // Workaround missing variadic function support
 // https://github.com/golang/go/issues/975
-int PyArg_ParseTuple_str(PyObject * args,  char * path) {
-    return PyArg_ParseTuple(args, "0:loop", path);
+int PyArg_ParseTuple_ourArgs(PyObject* args, PyObject* callback, PyObject* paths) {
+    return PyArg_ParseTuple(args, "00:schedule", callback, paths);
+}
+
+PyObject* PyObject_CallFunction_ourArgs(PyObject* _callback, char* path, long long flags) {
+    return PyObject_CallFunction(_callback, "OO", path, flags);
 }
 
 static PyMethodDef methods[] = {
-    {"loop", loop, METH_VARARGS, "Start looping."},
-    {"stop", stop, METH_O, "Stop the watcher."},
-    {"schedule", schedule, METH_VARARGS, "Setup the watcher for the given path."},
+    {"start", start, METH_VARARGS, "Start watching."},
+    {"stop", stop, METH_NOARGS, "Stop the watcher."},
+    {"schedule", schedule, METH_VARARGS, "Setup the watcher for the given path(s)."},
     {NULL, NULL, 0, NULL}
 };
 

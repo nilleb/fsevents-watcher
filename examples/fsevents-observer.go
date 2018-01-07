@@ -10,11 +10,11 @@ import (
     "runtime"
     "time"
 
-    "github.com/fsnotify/fsnotify"
+    "github.com/fsnotify/fsevents"
 )
 
 func main() {
-    path, err := ioutil.TempDir("", "fsexample")
+    path, err := ioutil.TempDir(".", "fsexample")
     if err != nil {
         log.Fatalf("Failed to create TempDir: %v", err)
     }

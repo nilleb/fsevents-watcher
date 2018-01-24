@@ -2,6 +2,7 @@
 Sample caller for the native fsevents_watcher module
 """
 import os
+import logging
 import fsevents_watcher
 
 def callback(path, flags):
@@ -12,7 +13,7 @@ def callback(path, flags):
     logging.info(path)
     logging.info(flags)
 
-fsevents_watcher.schedule(callback, os.path.abspath("."))
+fsevents_watcher.schedule(callback, [os.path.abspath(".")])
 fsevents_watcher.start()
 raw_input('Press [Enter] to stop listening.')
 fsevents_watcher.stop()

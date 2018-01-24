@@ -1,0 +1,1 @@
+./build.sh && /System/Library/Frameworks/Python.framework/Versions/2.7/bin/python macos_watcher.py

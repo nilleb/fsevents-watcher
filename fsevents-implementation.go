@@ -3,14 +3,16 @@ package main
 // #cgo pkg-config: python-2.7
 // #define Py_LIMITED_API
 // #include <Python.h>
-// int PyArg_ParseTuple_ourArgs(PyObject *, PyObject *, PyObject *);
-// PyObject* PyObject_CallFunction_ourArgs(PyObject*, char*, long long);
+// int PyArg_ParseTuple_ourArgs(PyObject *, PyObject **, PyObject **);
+// PyObject* PyArg_BuildNone();
+// PyObject* PyArg_BuildCallbackArguments(char* path, char* flags);
+// PyObject* PyObject_CallFunction_ourArgs(PyObject*, char*, char*);
 import "C"
 import (
 	"log"
 	"time"
 
-	"github.com/fsnotify/fsevents"
+	"github.com/nilleb/fsevents"
 )
 
 var es *fsevents.EventStream
@@ -20,6 +22,7 @@ var _callback *C.PyObject
 func PyListOfStrings(listObj *C.PyObject) []string {
 	numLines := int(C.PyList_Size(listObj))
 
+	log.Printf("number of lines: %d", numLines)
 	if numLines < 0 {
 		return nil
 	}
@@ -40,12 +43,22 @@ func PyString_AsString(s *C.PyObject) string {
 //export schedule
 func schedule(self, args *C.PyObject) *C.PyObject {
 	var argPaths *C.PyObject
-	if C.PyArg_ParseTuple_ourArgs(args, _callback, argPaths) != 0 {
+	success := C.PyArg_ParseTuple_ourArgs(args, &_callback, &argPaths)
+
+	log.Printf("args, %s", C.PyObject_Repr(args))
+	log.Printf("converted: %v, %s", _callback, C.PyObject_Repr(argPaths))
+
+	if success == 0 {
 		return nil
 	}
 	paths := PyListOfStrings(argPaths)
+	if paths == nil {
+		log.Fatal("Sorry, you should pass a slist of paths as second argument.")
+		return nil
+	}
 
 	path := paths[0]
+	log.Printf("Setting up an eventstream for %s", path)
 	dev, err := fsevents.DeviceForPath(path)
 	if err != nil {
 		log.Fatalf("Failed to retrieve device for path: %v", err)
@@ -56,7 +69,7 @@ func schedule(self, args *C.PyObject) *C.PyObject {
 		Device:  dev,
 		Flags:   fsevents.FileEvents | fsevents.WatchRoot}
 
-	return nil
+	return C.PyArg_BuildNone()
 }
 
 var noteDescription = map[fsevents.EventFlags]string{
@@ -83,26 +96,30 @@ var noteDescription = map[fsevents.EventFlags]string{
 }
 
 func callTheCallback(event fsevents.Event) {
-	if C.PyObject_CallFunction_ourArgs(_callback, C.CString(event.Path),
-		C.longlong(event.Flags)) == nil {
-		log.Printf("the callback has returned nil")
-	}
+	note := createNote(event)
+	// args = C.PyArg_BuildCallbackArguments(C.CString(event.Path), C.CString(note))
+	C.PyObject_CallFunction_ourArgs(_callback, C.CString(event.Path), C.CString(note))
 }
 
-func logEvent(event fsevents.Event) {
+func createNote(event fsevents.Event) string {
 	note := ""
 	for bit, description := range noteDescription {
 		if event.Flags&bit == bit {
 			note += description + " "
 		}
 	}
+	return note
+}
+
+func logEvent(event fsevents.Event) {
+	note := createNote(event)
 	log.Printf("EventID: %d Path: %s Flags: %s", event.ID, event.Path, note)
 }
 
 //export stop
 func stop(self *C.PyObject) *C.PyObject {
 	es.Stop()
-	return nil
+	return C.PyArg_BuildNone()
 }
 
 //export start
@@ -117,7 +134,7 @@ func start(self *C.PyObject) *C.PyObject {
 			}
 		}
 	}()
-	return nil
+	return C.PyArg_BuildNone()
 }
 
 func main() {}

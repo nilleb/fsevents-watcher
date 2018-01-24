@@ -23,12 +23,20 @@ PyObject * schedule(PyObject *, PyObject *);
 
 // Workaround missing variadic function support
 // https://github.com/golang/go/issues/975
-int PyArg_ParseTuple_ourArgs(PyObject* args, PyObject* callback, PyObject* paths) {
-    return PyArg_ParseTuple(args, "00:schedule", callback, paths);
+int PyArg_ParseTuple_ourArgs(PyObject* args, PyObject** callback, PyObject** paths) {
+    return PyArg_ParseTuple(args, "OO:schedule", callback, paths);
 }
 
-PyObject* PyObject_CallFunction_ourArgs(PyObject* _callback, char* path, long long flags) {
-    return PyObject_CallFunction(_callback, "OO", path, flags);
+PyObject* PyArg_BuildNone() {
+    return Py_BuildValue("");
+}
+
+PyObject* PyArg_BuildCallbackArguments(char* path, char* flags) {
+    return Py_BuildValue("ss", path, flags);
+}
+
+PyObject* PyObject_CallFunction_ourArgs(PyObject* _callback, char* path, char* flags) {
+    return PyObject_CallFunction(_callback, "ss", path, flags);
 }
 
 static PyMethodDef methods[] = {

@@ -3,10 +3,12 @@ package main
 // #cgo pkg-config: python-2.7
 // #define Py_LIMITED_API
 // #include <Python.h>
-// int PyArg_ParseTuple_ourArgs(PyObject *, PyObject **, PyObject **);
+// int ParseOurArguments(PyObject *, PyObject **, PyObject **);
 // PyObject* PyArg_BuildNone();
 // PyObject* PyArg_BuildCallbackArguments(char* path, char* flags);
-// PyObject* PyObject_CallFunction_ourArgs(PyObject*, char*, char*);
+// PyObject* CallPythonFunction(PyObject*, char*, char*);
+// void IncreaseReference(PyObject*);
+// void DecreaseReference(PyObject*);
 import "C"
 import (
 	"log"
@@ -18,11 +20,15 @@ import (
 var es *fsevents.EventStream
 var _callback *C.PyObject
 
+// PyStringAsString convert a python string to a Go string
+func PyStringAsString(s *C.PyObject) string {
+	return C.GoString(C.PyString_AsString(s))
+}
+
 // PyListOfStrings convert a list of objects to a list of strings
 func PyListOfStrings(listObj *C.PyObject) []string {
 	numLines := int(C.PyList_Size(listObj))
 
-	log.Printf("number of lines: %d", numLines)
 	if numLines < 0 {
 		return nil
 	}
@@ -30,44 +36,58 @@ func PyListOfStrings(listObj *C.PyObject) []string {
 	aList := []string{}
 	for i := 0; i < numLines; i++ {
 		strObj := C.PyList_GetItem(listObj, C.Py_ssize_t(i))
-		aList = append(aList, PyString_AsString(strObj))
+		aList = append(aList, PyStringAsString(strObj))
 	}
 	return aList
-}
-
-// PyString_AsString convert a python string to a Go string
-func PyString_AsString(s *C.PyObject) string {
-	return C.GoString(C.PyString_AsString(s))
 }
 
 //export schedule
 func schedule(self, args *C.PyObject) *C.PyObject {
 	var argPaths *C.PyObject
-	success := C.PyArg_ParseTuple_ourArgs(args, &_callback, &argPaths)
 
-	log.Printf("args, %s", C.PyObject_Repr(args))
-	log.Printf("converted: %v, %s", _callback, C.PyObject_Repr(argPaths))
+	C.DecreaseReference(_callback)
+	success := C.ParseOurArguments(args, &_callback, &argPaths)
 
 	if success == 0 {
-		return nil
-	}
-	paths := PyListOfStrings(argPaths)
-	if paths == nil {
-		log.Fatal("Sorry, you should pass a slist of paths as second argument.")
+		log.Fatal("Unable to parse the passed arguments", C.PyObject_Repr(args))
+		C.PyErr_SetString(C.PyExc_TypeError, C.CString("invalid parameters"))
 		return nil
 	}
 
-	path := paths[0]
-	log.Printf("Setting up an eventstream for %s", path)
-	dev, err := fsevents.DeviceForPath(path)
+	if C.PyCallable_Check(_callback) == 0 {
+		log.Fatal("The first argument must be callable", C.PyObject_Repr(args))
+		C.PyErr_SetString(C.PyExc_TypeError, C.CString("parameter must be callable"))
+		return nil
+	}
+	C.IncreaseReference(_callback)
+
+	// log.Printf("args, %s", C.PyObject_Repr(args))
+	// log.Printf("converted: %v, %s", _callback, C.PyObject_Repr(argPaths))
+
+	paths := PyListOfStrings(argPaths)
+	if paths == nil {
+		log.Fatal("Sorry, you should pass a list of paths as second argument.")
+		C.PyErr_SetString(C.PyExc_TypeError, C.CString("use a list of paths as second argument"))
+		return nil
+	}
+
+	C.CallPythonFunction(_callback, C.CString(paths[0]), C.CString("sample flags"))
+	log.Printf("the callback has been called successfully!")
+	log.Printf("Setting up an eventstream for %s", paths[0])
+
+	dev, err := fsevents.DeviceForPath(paths[0])
 	if err != nil {
 		log.Fatalf("Failed to retrieve device for path: %v", err)
+		C.PyErr_SetString(C.PyExc_TypeError, C.CString("failed to retrieve device for path"))
+		return nil
 	}
+
 	es = &fsevents.EventStream{
 		Paths:   paths,
 		Latency: 500 * time.Millisecond,
 		Device:  dev,
-		Flags:   fsevents.FileEvents | fsevents.WatchRoot}
+		Flags:   fsevents.FileEvents | fsevents.WatchRoot,
+	}
 
 	return C.PyArg_BuildNone()
 }
@@ -97,8 +117,11 @@ var noteDescription = map[fsevents.EventFlags]string{
 
 func callTheCallback(event fsevents.Event) {
 	note := createNote(event)
-	// args = C.PyArg_BuildCallbackArguments(C.CString(event.Path), C.CString(note))
-	C.PyObject_CallFunction_ourArgs(_callback, C.CString(event.Path), C.CString(note))
+	if C.PyCallable_Check(_callback) == 0 {
+		log.Print("parameter must be callable")
+		return
+	}
+	C.CallPythonFunction(_callback, C.CString(event.Path), C.CString(note))
 }
 
 func createNote(event fsevents.Event) string {

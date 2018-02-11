@@ -68,8 +68,6 @@ func schedule(self, args *C.PyObject) *C.PyObject {
 		return nil
 	}
 
-	C.CallPythonFunction(_callback, C.CString(paths[0]), C.CString("sample flags"))
-	log.Printf("the callback has been called successfully!")
 	log.Printf("Setting up an eventstream for %s", paths[0])
 
 	dev, err := fsevents.DeviceForPath(paths[0])

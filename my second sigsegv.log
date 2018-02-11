@@ -1,32 +1,35 @@
-Press [Enter] to stop listening.fatal error: unexpected signal during runtime execution
-[signal SIGSEGV: segmentation violation code=0x1 addr=0x18 pc=0x7fff4a431552]
+2018/02/11 22:43:16 Setting up an eventstream for /Users/nilleb/go/src/github.com/nilleb/fsevents_watcher
+Press [Enter] to stop listening.
+python: callback called: Users/nilleb/go/src/github.com/nilleb/fsevents_watcher/.git/index.lock: IsFile Created
+fatal error: unexpected signal during runtime execution
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x38 pc=0x7fff7beb03d5]
 
 runtime stack:
-runtime.throw(0x104f3dd6e, 0x2a)
-	/usr/local/Cellar/go/1.9.3/libexec/src/runtime/panic.go:605 +0x95
+runtime.throw(0x11006de15, 0x2a)
+	/usr/local/Cellar/go/1.9.4/libexec/src/runtime/panic.go:605 +0x95
 runtime.sigpanic()
-	/usr/local/Cellar/go/1.9.3/libexec/src/runtime/signal_unix.go:351 +0x2b8
+	/usr/local/Cellar/go/1.9.4/libexec/src/runtime/signal_unix.go:351 +0x2b8
 
 goroutine 19 [syscall, locked to thread]:
-runtime.cgocall(0x104efff10, 0xc4200266c8, 0xc4200266d0)
-	/usr/local/Cellar/go/1.9.3/libexec/src/runtime/cgocall.go:132 +0xe4 fp=0xc420026698 sp=0xc420026658 pc=0x104e61eb4
-main._Cfunc_PyObject_CallFunction_ourArgs(0x104d856e0, 0x7ff53de02da0, 0x7ff53de02df0, 0x0)
-	github.com/nilleb/fsevents-watcher/_obj/_cgo_gotypes.go:362 +0x4e fp=0xc4200266c8 sp=0xc420026698 pc=0x104efd8fe
-main.callTheCallback.func1(0x104d856e0, 0x7ff53de02da0, 0x7ff53de02df0, 0x812623)
-	/Users/nilleb/go/src/github.com/nilleb/fsevents-watcher/fsevents-implementation.go:99 +0x74 fp=0xc420026700 sp=0xc4200266c8 pc=0x104efef64
-main.callTheCallback(0xc4200be000, 0x46, 0x10300, 0x812623)
-	/Users/nilleb/go/src/github.com/nilleb/fsevents-watcher/fsevents-implementation.go:101 +0xb3 fp=0xc420026758 sp=0xc420026700 pc=0x104efe613
-main.start.func1(0xc4200b2000)
-	/Users/nilleb/go/src/github.com/nilleb/fsevents-watcher/fsevents-implementation.go:132 +0x83 fp=0xc4200267d8 sp=0xc420026758 pc=0x104eff013
+runtime.cgocall(0x11002fd10, 0xc4200246d8, 0xc4200246e0)
+	/usr/local/Cellar/go/1.9.4/libexec/src/runtime/cgocall.go:132 +0xe4 fp=0xc4200246a8 sp=0xc420024668 pc=0x10ff91704
+main._Cfunc_CallPythonFunction(0x10feb8758, 0x7fb4be61ffe0, 0x7fb4be604d70, 0x0)
+	github.com/nilleb/fsevents_watcher/_obj/_cgo_gotypes.go:305 +0x4e fp=0xc4200246d8 sp=0xc4200246a8 pc=0x11002cefe
+main.callTheCallback.func2(0x10feb8758, 0x7fb4be61ffe0, 0x7fb4be604d70, 0x1cb62c)
+	/Users/nilleb/go/src/github.com/nilleb/fsevents_watcher/fsevents-implementation.go:124 +0x74 fp=0xc420024710 sp=0xc4200246d8 pc=0x11002ef54
+main.callTheCallback(0xc4200b6000, 0x46, 0x10100, 0x1cb62c)
+	/Users/nilleb/go/src/github.com/nilleb/fsevents_watcher/fsevents-implementation.go:124 +0x122 fp=0xc420024778 sp=0xc420024710 pc=0x11002e2c2
+main.start.func1(0xc4200aa000)
+	/Users/nilleb/go/src/github.com/nilleb/fsevents_watcher/fsevents-implementation.go:156 +0x6d fp=0xc4200247d8 sp=0xc420024778 pc=0x11002f06d
 runtime.goexit()
-	/usr/local/Cellar/go/1.9.3/libexec/src/runtime/asm_amd64.s:2337 +0x1 fp=0xc4200267e0 sp=0xc4200267d8 pc=0x104eb1b41
+	/usr/local/Cellar/go/1.9.4/libexec/src/runtime/asm_amd64.s:2337 +0x1 fp=0xc4200247e0 sp=0xc4200247d8 pc=0x10ffe1391
 created by main.start
-	/Users/nilleb/go/src/github.com/nilleb/fsevents-watcher/fsevents-implementation.go:129 +0x55
+	/Users/nilleb/go/src/github.com/nilleb/fsevents_watcher/fsevents-implementation.go:153 +0x55
 
 goroutine 5 [syscall, locked to thread]:
 github.com/nilleb/fsevents._Cfunc_CFRunLoopRun()
 	github.com/nilleb/fsevents/_obj/_cgo_gotypes.go:234 +0x41
-github.com/nilleb/fsevents.(*EventStream).start.func1(0xc4200ae000, 0xc420076120)
+github.com/nilleb/fsevents.(*EventStream).start.func1(0xc4200a6000, 0xc42001c180)
 	/Users/nilleb/go/src/github.com/nilleb/fsevents/wrap.go:235 +0xf2
 created by github.com/nilleb/fsevents.(*EventStream).start
 	/Users/nilleb/go/src/github.com/nilleb/fsevents/wrap.go:229 +0xe6

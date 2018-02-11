@@ -61,9 +61,6 @@ func schedule(self, args *C.PyObject) *C.PyObject {
 	}
 	C.IncreaseReference(_callback)
 
-	// log.Printf("args, %s", C.PyObject_Repr(args))
-	// log.Printf("converted: %v, %s", _callback, C.PyObject_Repr(argPaths))
-
 	paths := PyListOfStrings(argPaths)
 	if paths == nil {
 		log.Fatal("Sorry, you should pass a list of paths as second argument.")
@@ -117,11 +114,8 @@ var noteDescription = map[fsevents.EventFlags]string{
 
 func callTheCallback(event fsevents.Event) {
 	note := createNote(event)
-	if C.PyCallable_Check(_callback) == 0 {
-		log.Print("parameter must be callable")
-		return
-	}
-	C.CallPythonFunction(_callback, C.CString(event.Path), C.CString(note))
+	result := C.CallPythonFunction(_callback, C.CString(event.Path), C.CString(note))
+	C.DecreaseReference(result)
 }
 
 func createNote(event fsevents.Event) string {

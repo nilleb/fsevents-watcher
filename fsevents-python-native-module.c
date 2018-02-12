@@ -54,7 +54,7 @@ PyObject* CallPythonFunction(PyObject* _callback, char* path, char* flags) {
 
 // Module definition
 static PyMethodDef methods[] = {
-    {"start", start, METH_VARARGS, "Start watching."},
+    {"start", start, METH_NOARGS, "Start watching."},
     {"stop", stop, METH_NOARGS, "Stop the watcher."},
     {"schedule", schedule, METH_VARARGS, "Setup the watcher for the given path(s)."},
     {NULL, NULL, 0, NULL}
@@ -65,5 +65,6 @@ static char doc[] = "Low-level FSEvent interface.";
 MOD_INIT(fsevents_watcher) {
     PyObject* mod;
     MOD_DEF(mod, "fsevents_watcher", doc, methods);
+    PyEval_InitThreads();
     return MOD_SUCCESS_VAL(mod);
 }

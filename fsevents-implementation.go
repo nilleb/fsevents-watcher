@@ -5,7 +5,6 @@ package main
 // #include <Python.h>
 // int ParseOurArguments(PyObject *, PyObject **, PyObject **);
 // PyObject* PyArg_BuildNone();
-// PyObject* PyArg_BuildCallbackArguments(char* path, char* flags);
 // PyObject* CallPythonFunction(PyObject*, char*, char*);
 // void IncreaseReference(PyObject*);
 // void DecreaseReference(PyObject*);
@@ -67,8 +66,6 @@ func schedule(self, args *C.PyObject) *C.PyObject {
 		C.PyErr_SetString(C.PyExc_TypeError, C.CString("use a list of paths as second argument"))
 		return nil
 	}
-
-	log.Printf("Setting up an eventstream for %s", paths[0])
 
 	dev, err := fsevents.DeviceForPath(paths[0])
 	if err != nil {
@@ -145,7 +142,6 @@ func start(self *C.PyObject) *C.PyObject {
 		for msg := range ec {
 			for _, event := range msg {
 				callTheCallback(event)
-				logEvent(event)
 			}
 		}
 	}()

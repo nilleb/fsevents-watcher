@@ -1,3 +1,4 @@
+The following articles have been read in order to produce this code.
 https://blog.filippo.io/building-python-modules-with-go-1-5/#thecompletedemosource
 http://nigerlittlepoole.com/post/153224915028/using-go-to-boost-python-performance
 https://tip.golang.org/doc/go1.10#cgo

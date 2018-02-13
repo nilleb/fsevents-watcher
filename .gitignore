@@ -3,3 +3,4 @@ examples/fsexample*/
 *.dylib
 fsevents*watcher.h
 *.so
+mtime_file_watcher_backup_*.py

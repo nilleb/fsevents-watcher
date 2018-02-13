@@ -13,7 +13,7 @@ import os
 import time
 from os.path import abspath, join
 import fsevents_watcher
-from ConfigParser import ConfigParser
+from ConfigParser import ConfigParser, NoSectionError
 
 # Only watch for changes to .go, .py or .yaml files
 WATCHED_EXTENSIONS = set(['.go', '.py', '.yaml'])
@@ -43,11 +43,15 @@ class MtimeFileWatcher(object):
         setup_cfg_path = find_upwards("setup.cfg")
         if setup_cfg_path:
             config = ConfigParser()
-            config_value = config.get('appengine:mtime_file_watcher', 'watched_extensions')
             try:
-                watched_extensions = set(config_value)
-            except TypeError:
+                config_value = config.get('appengine:mtime_file_watcher', 'watched_extensions')
+            except NoSectionError:
                 watched_extensions = WATCHED_EXTENSIONS
+            else:
+                try:
+                    watched_extensions = set(config_value)
+                except TypeError:
+                    watched_extensions = WATCHED_EXTENSIONS
 
         # Paths to watch
         paths = [module_dir]

@@ -1,1 +1,1 @@
-brew install pkg-config
+brew install pkg-config golang

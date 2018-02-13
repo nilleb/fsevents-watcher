@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 import glob
 from datetime import datetime
@@ -5,7 +6,6 @@ import hashlib
 import shutil
 import os.path
 from distutils.spawn import find_executable
-from __future__ import print_function
 
 reference_file = "mtime_file_watcher_replacement.py"
 
@@ -27,18 +27,26 @@ def detect_mtime_file_watcher_path():
         return None
     return mtime_file_watcher
 
-def replace():
+def replace(skip_backup=False):
     mtime_file_watcher = detect_mtime_file_watcher_path()
     if not mtime_file_watcher:
+        exit()
+    native_module = "fsevents_watcher.so"
+    if not os.path.exists(native_module):
+        print("sorry, I am unable to find the native module ({}). have you built it?".format(native_module))
         exit()
 
     reference_checksum = md5(reference_file)
     in_place_checksum = md5(mtime_file_watcher)
 
+    native_module_destination = os.path.abspath(
+        os.path.join(mtime_file_watcher, '../{}'.format(native_module)))
     if reference_checksum != in_place_checksum:
         ts = datetime.now().isoformat().replace('-', '').replace(':', '').replace('.', '')
-        shutil.copy(mtime_file_watcher, "mtime_file_watcher_backup_{}.py".format(ts))
+        if not skip_backup:
+            shutil.copy(mtime_file_watcher, "mtime_file_watcher_backup_{}.py".format(ts))
         shutil.copy(reference_file, mtime_file_watcher)
+        shutil.copy(native_module, native_module_destination)
         print("The replacement mtime_file_watcher.py has been copied.")
     else:
         print("Looks like the replacement is already in place.")
@@ -58,8 +66,15 @@ def restore():
     print('The file {} has been restored.')
 
 parser = argparse.ArgumentParser(description='Replace and restore the AppEngine mtime_file_watcher.')
-parser.add_argument('action', nargs='+', help='what to do: replace or restore')
+parser.add_argument('action', help='what to do: `replace` or `restore`')
+parser.add_argument(
+    '--skip-backup', nargs='?', help='should we backup the existing file?')
 
 ns = parser.parse_args()
 if ns.action == 'replace':
-    replace()
+    replace(skip_backup=ns.skip_backup)
+elif ns.action == 'restore':
+    restore()
+else:
+    print("sorry, I haven't understood your command! ({})".format(ns.action))
+    parser.print_help()

@@ -16,6 +16,7 @@ brew install pkg-config golang
 mkdir -p $GOPATH/src/github.com/nilleb
 cd $GOPATH/src/github.com/nilleb
 git clone https://github.com/nilleb/fsevents-watcher
+cd fsevents-watcher
 # which python do you use? if a homebrew one, you're ready to go.
 # otherwise, edit set-python-home.sh
 ./build.sh

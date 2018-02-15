@@ -31,13 +31,17 @@ now you can start `dev_appserver.py` as usual
 
 ## notes
 has been tested on
-- Darwin 17.4.0 Darwin Kernel Version 17.4.0: Sun Dec 17 09:19:54 PST 2017; root:xnu-4570.41.2~1/RELEASE_X86_64 x86_64 i386 MacBookPro12,1 Darwin
-- Darwin 17.4.0 Darwin Kernel Version 17.4.0: Sun Dec 17 09:19:54 PST 2017; root:xnu-4570.41.2~1/RELEASE_X86_64 x86_64 i386 MacBookPro13,1 Darwin
+- Darwin 17.4.0 Darwin Kernel Version 17.4.0: Sun Dec 17 09:19:54 PST 2017; root:xnu-4570.41.2~1/RELEASE_X86_64 x86_64 i386 MacBookPro12,1 Darwin (homebrew python 2.7.13)
+- Darwin 17.4.0 Darwin Kernel Version 17.4.0: Sun Dec 17 09:19:54 PST 2017; root:xnu-4570.41.2~1/RELEASE_X86_64 x86_64 i386 MacBookPro13,1 Darwin (System Default Python Interpreter - 2.7.10 as of writing)
 - Darwin 16.7.0 Darwin Kernel Version 16.7.0: Thu Jan 11 22:59:40 PST 2018; root:xnu-3789.73.8~1/RELEASE_X86_64 x86_64 i386 MacBookPro12,1 Darwin
 
 ## troubleshooting
+### python version mismatch
 ```
 Fatal Python error: PyThreadState_Get: no current thread
 ./launch.sh: line 4: 52141 Abort trap: 6           $PYTHON_HOME/bin/python macos_watcher.py
 ```
-Execute a `otool -L fsevents_watcher.so` and verify that the python path is the one of the python exeuctable you are using to launch the code.
+Execute a `otool -L fsevents_watcher.so` and verify that the python path is the one of the python executable you are using to launch the code.
+
+### gcloud components update
+If you update the gcloud components, you shall re-replace the `mtime_file_watcher.py` again..

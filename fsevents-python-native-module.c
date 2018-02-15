@@ -31,10 +31,6 @@ void DecreaseReference(PyObject* object) {
     Py_XDECREF(object);
 }
 
-PyObject* PyArg_BuildNone() {
-    return Py_BuildValue("");
-}
-
 // Workaround missing variadic function support
 // https://github.com/golang/go/issues/975
 int ParseOurArguments(PyObject* args, PyObject** callback, PyObject** paths) {
@@ -43,6 +39,10 @@ int ParseOurArguments(PyObject* args, PyObject** callback, PyObject** paths) {
 
 PyObject* PyArg_BuildCallbackArguments(char* path, char* flags) {
     return Py_BuildValue("(ss)", path, flags);
+}
+
+PyObject* PyArg_BuildNone() {
+    return Py_BuildValue("");
 }
 
 PyObject* CallPythonFunction(PyObject* _callback, char* path, char* flags) {

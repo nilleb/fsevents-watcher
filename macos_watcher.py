@@ -14,6 +14,8 @@ def callback(path, flags):
     print("python: callback called: {}: {}".format(path, flags))
 
 fsevents_watcher.schedule(callback, [os.path.abspath(".")])
+fsevents_watcher.schedule(callback, [os.path.abspath(".")])
+fsevents_watcher.schedule(callback, [os.path.abspath(".")])
 fsevents_watcher.start()
 raw_input('Press [Enter] to stop listening.\n')
 fsevents_watcher.stop()

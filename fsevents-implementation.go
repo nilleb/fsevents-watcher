@@ -11,13 +11,14 @@ package main
 import "C"
 import (
 	"log"
+	"strings"
 	"time"
 
-	"github.com/nilleb/fsevents"
+	"github.com/fsnotify/fsevents"
 )
 
 var es *fsevents.EventStream
-var _callback *C.PyObject
+var _callbacks map[string][]*C.PyObject
 
 // PyStringAsString convert a python string to a Go string
 func PyStringAsString(s *C.PyObject) string {
@@ -44,8 +45,8 @@ func PyListOfStrings(listObj *C.PyObject) []string {
 func schedule(self, args *C.PyObject) *C.PyObject {
 	var argPaths *C.PyObject
 
-	C.DecreaseReference(_callback)
-	success := C.ParseOurArguments(args, &_callback, &argPaths)
+	var callback *C.PyObject
+	success := C.ParseOurArguments(args, &callback, &argPaths)
 
 	if success == 0 {
 		log.Fatal("Unable to parse the passed arguments", C.PyObject_Repr(args))
@@ -53,12 +54,12 @@ func schedule(self, args *C.PyObject) *C.PyObject {
 		return nil
 	}
 
-	if C.PyCallable_Check(_callback) == 0 {
+	if C.PyCallable_Check(callback) == 0 {
 		log.Fatal("The first argument must be callable", C.PyObject_Repr(args))
 		C.PyErr_SetString(C.PyExc_TypeError, C.CString("parameter must be callable"))
 		return nil
 	}
-	C.IncreaseReference(_callback)
+	C.IncreaseReference(callback)
 
 	paths := PyListOfStrings(argPaths)
 	if paths == nil {
@@ -67,6 +68,11 @@ func schedule(self, args *C.PyObject) *C.PyObject {
 		return nil
 	}
 
+	if _callbacks == nil {
+		_callbacks = make(map[string][]*C.PyObject)
+	}
+
+	_callbacks[paths[0]] = append(_callbacks[paths[0]], callback)
 	dev, err := fsevents.DeviceForPath(paths[0])
 	if err != nil {
 		log.Fatalf("Failed to retrieve device for path: %v", err)
@@ -109,8 +115,19 @@ var noteDescription = map[fsevents.EventFlags]string{
 
 func callTheCallback(event fsevents.Event) {
 	note := createNote(event)
-	result := C.CallPythonFunction(_callback, C.CString(event.Path), C.CString(note))
-	C.DecreaseReference(result)
+	var callbacksToCall []*C.PyObject
+	var minDistance = 200
+	for k := range _callbacks {
+		distance := len(strings.Replace(event.Path, k, "", 1))
+		if distance < minDistance {
+			minDistance = distance
+			callbacksToCall = _callbacks[k]
+		}
+	}
+	for _, callback := range callbacksToCall {
+		result := C.CallPythonFunction(callback, C.CString(event.Path), C.CString(note))
+		C.DecreaseReference(result)
+	}
 }
 
 func createNote(event fsevents.Event) string {

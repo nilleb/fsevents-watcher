@@ -17,17 +17,19 @@ mkdir -p $GOPATH/src/github.com/nilleb
 cd $GOPATH/src/github.com/nilleb
 git clone https://github.com/nilleb/fsevents-watcher
 cd fsevents-watcher
-# which python do you use? if a homebrew one, you're ready to go.
-# otherwise, edit set-python-home.sh
+# which python do you use? we try to detect it in the set-python-home.sh.
+# if you feel it's not the right version, feel free to edit it.
 ./build.sh
-# now you can launch the example (it just notifies you about the events in the current folder) by typing
+
+# now you can:
+# - launch the example by typing
 ./launch.sh
-# if you want to use the included mtime_file_watcher for your AppEngine dev_appserver.py
+# - if you want to use the included mtime_file_watcher.py for your AppEngine dev_appserver.py
 sudo python replace_mtime_file_watcher.py replace
-# if you want to restore the original mtime_file_watcher.py,
+# now you can start `dev_appserver.py` as usual
+# - if you want to restore the original mtime_file_watcher.py,
 sudo python replace_mtime_file_watcher.py restore
 ```
-now you can start `dev_appserver.py` as usual
 
 ## notes
 has been tested on
@@ -42,6 +44,10 @@ Fatal Python error: PyThreadState_Get: no current thread
 ./launch.sh: line 4: 52141 Abort trap: 6           $PYTHON_HOME/bin/python macos_watcher.py
 ```
 Execute a `otool -L fsevents_watcher.so` and verify that the python path is the one of the python executable you are using to launch the code.
+
+### permission denied while replacing the mtime file watcher
+`IOError: [Errno 13] Permission denied: '/google-cloud-sdk/platform/google_appengine/google/appengine/tools/devappserver2/mtime_file_watcher.py'`
+Have you typed `sudo` before the `replace_mtime_file_watcher.py` invocation?
 
 ### gcloud components update
 If you update the gcloud components, you shall re-replace the `mtime_file_watcher.py` again..

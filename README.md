@@ -44,6 +44,7 @@ Fatal Python error: PyThreadState_Get: no current thread
 ./launch.sh: line 4: 52141 Abort trap: 6           $PYTHON_HOME/bin/python macos_watcher.py
 ```
 Execute a `otool -L fsevents_watcher.so` and verify that the python path is the one of the python executable you are using to launch the code.
+If the path seems to be the same, check that the Python path exists. When using homebrew it is possible that some symlinks evolve with updates. If it is missing, you should be able to create a symbolic link to the right version.
 
 ### permission denied while replacing the mtime file watcher
 `IOError: [Errno 13] Permission denied: '/google-cloud-sdk/platform/google_appengine/google/appengine/tools/devappserver2/mtime_file_watcher.py'`

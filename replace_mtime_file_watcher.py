@@ -45,7 +45,7 @@ def replace(skip_backup=False):
     native_module_destination = os.path.abspath(
         os.path.join(mtime_file_watcher, '../{}'.format(native_module)))
     native_module_reference_checksum = md5(native_module)
-    native_module_in_place_checksum = md5(native_module_destination)
+    native_module_in_place_checksum = md5(native_module_destination) if os.path.exists(native_module_destination) else None
 
     if reference_checksum != in_place_checksum or native_module_reference_checksum != native_module_in_place_checksum:
         ts = datetime.now().isoformat().replace('-', '').replace(':', '').replace('.', '')

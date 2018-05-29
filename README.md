@@ -46,6 +46,17 @@ Fatal Python error: PyThreadState_Get: no current thread
 Execute a `otool -L fsevents_watcher.so` and verify that the python path is the one of the python executable you are using to launch the code.
 If the path seems to be the same, check that the Python path exists. When using homebrew it is possible that some symlinks evolve with updates. If it is missing, you should be able to create a symbolic link to the right version.
 
+If the path differs, you can try the follow:
+- check what commands are being issued by the golang comiler and linker, editing build.sh and adding the `-x` flag at the end of the last line
+- verify that the path of the python library being linked is the one pointed by `otool`
+- check that you have installed homebrew python, and the pkg-config files
+    `brew ls python`
+    or
+    `brew ls python@2`
+    and inspect the output of those two commands. if they contain a folder named pkg-config you're halfway to the solution
+- if this is the case, try setting the PKG_CONFIG_PATH to the full path of the pkg-config folder listed by brew
+- if this is not the case, you could try reinstalling homebrew python
+
 ### permission denied while replacing the mtime file watcher
 `IOError: [Errno 13] Permission denied: '/google-cloud-sdk/platform/google_appengine/google/appengine/tools/devappserver2/mtime_file_watcher.py'`
 Have you typed `sudo` before the `replace_mtime_file_watcher.py` invocation?

@@ -5,3 +5,6 @@ fsevents*watcher.h
 *.so
 mtime_file_watcher_backup_*.py
 fsevents_watcher
+.scannerwork
+vendor
+bw-output

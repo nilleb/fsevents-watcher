@@ -26,7 +26,7 @@ def detect_mtime_file_watcher_path():
     relative = "platform/google_appengine/google/appengine/tools/devappserver2/mtime_file_watcher.py"
     mtime_file_watcher = "{}/{}".format(cloud_sdk_path, relative)
     if not os.path.isfile(mtime_file_watcher):
-        print("sorry, unable to detect the path of mtime_file_watcher.py")
+        print("sorry, unable to detect the path of mtime_file_watcher.py (tried: {})".format(mtime_file_watcher))
         return None
     return mtime_file_watcher
 
